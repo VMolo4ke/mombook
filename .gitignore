@@ -1,0 +1,91 @@
+# ========================
+# ОБЩИЕ ФАЙЛЫ И ПАПКИ (OS-specific, IDE-specific)
+# ========================
+.DS_Store # macOS specific
+.idea/    # JetBrains IDEs (e.g., PyCharm, WebStorm)
+.vscode/  # Visual Studio Code
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.cache/
+.project
+.classpath
+
+# ========================
+# КОНФИГУРАЦИЯ VUE.JS ФРОНТЕНДА
+# ========================
+# Зависимости
+/node_modules
+
+# Результаты сборки (билда)
+/dist
+/build
+
+# Локальные файлы окружения
+.env.local
+.env.*.local
+
+# ========================
+# КОНФИГУРАЦИЯ FASTAPI БЭКЕНДА
+# ========================
+# Виртуальное окружение
+/venv
+/env
+.venv
+.env # Секретные данные должны храниться в .env и не коммититься
+
+# Скомпилированные файлы Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Упаковка и дистрибуция
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Тесты и отчеты о покрытии
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Документация Sphinx
+docs/_build/
+
+# Jupyter Notebook (если используется)
+.ipynb_checkpoints
+
+# Логи
+*.log
+
+# Python virtual environment
+/venv
+.venv
+backend/venv
