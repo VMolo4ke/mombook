@@ -89,3 +89,5 @@ docs/_build/
 /venv
 .venv
 backend/venv
+
+shop.db
