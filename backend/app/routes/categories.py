@@ -7,7 +7,7 @@ from ..schemas.category import CategoryResponse
 
 router = APIRouter(
     prefix="/api/categories",
-    tags="categories"
+    tags=["categories"]
 )
 
 @router.get("", response_model=List[CategoryResponse], status_code=status.HTTP_200_OK)
