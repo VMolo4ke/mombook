@@ -27,7 +27,7 @@ class ProductResponse(BaseModel):
     class Config:
         form_attributes = True
 
-class ProsuctListResponse(BaseModel):
+class ProductListResponse(BaseModel):
     products: list[ProductResponse]
     total: int = Field(..., description="Count products")
     
