@@ -1,9 +1,27 @@
 <script setup>
 import Item from '@/components/Item.vue'
+import Cart from '@/components/Cart.vue'
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
+
+const items = ref(null)
+
+onMounted(async () => {
+  try {
+    const { data } = await axios.get('http://localhost:5173/api/products')
+    items.value = data.products
+  } catch (error) {
+    console.log(error)
+  }
+})
 </script>
 
 <template>
   <div class="container">
+    <Cart />
+    <div class="cart__btn">
+      <img src="../assets/image/cart_icon.svg" alt="" /><span class="cart__btn-span">1</span>
+    </div>
     <header class="header">
       <input type="text" placeholder="Искать товар" class="header__input" />
       <div class="header__category">
@@ -12,10 +30,7 @@ import Item from '@/components/Item.vue'
       </div>
     </header>
     <main class="main">
-      <Item />
-      <Item />
-      <Item />
-      <Item />
+      <Item v-for="item in items" :key="item.id" :price="item.price" :name="item.name" />
     </main>
   </div>
 </template>
@@ -55,5 +70,29 @@ import Item from '@/components/Item.vue'
   display: grid;
   grid-template-columns: 1fr 1fr; /* Две колонки, каждая занимает 50% доступной ширины */
   gap: 10px;
+}
+.cart__btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+}
+.cart__btn img {
+  width: 45%;
+}
+.cart__btn-span {
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 50%;
+  position: absolute;
+  color: #fff;
+  top: 5px;
+  right: 8px;
 }
 </style>

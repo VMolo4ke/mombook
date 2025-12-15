@@ -3,12 +3,18 @@ from sqlalchemy.orm import Session
 from typing import List
 from ..database import get_db
 from ..services.category_service import CategoryService
-from ..schemas.category import CategoryResponse
+from ..schemas.category import CategoryResponse, CategoryCreate
+from pydantic import BaseModel
 
 router = APIRouter(
     prefix="/api/categories",
     tags=["categories"]
 )
+
+class AddToCategoryRequest(BaseModel):
+    name: str
+    slug: str
+    
 
 @router.get("", response_model=List[CategoryResponse], status_code=status.HTTP_200_OK)
 def get_categories(db: Session = Depends(get_db)):
@@ -19,3 +25,10 @@ def get_categories(db: Session = Depends(get_db)):
 def get_category(category_id: int, db: Session = Depends(get_db)):
     service = CategoryService(db)
     return service.get_category_by_id(category_id)
+
+@router.post("/add", status_code=status.HTTP_201_CREATED)
+def create_category(request: AddToCategoryRequest, db: Session = Depends(get_db)):
+    service = CategoryService(db)
+    item = CategoryCreate(name=request.name, slug=request.slug)
+    new_category = service.create_category(item)
+    return {"categories": new_category}

@@ -1,9 +1,16 @@
+<script setup>
+const props = defineProps({
+  price: Number,
+  name: String,
+})
+</script>
+
 <template>
   <div class="item">
     <img class="item_image" src="../assets/image/book.jpg" alt="" />
     <div class="item__info">
-      <p class="item__price">360 ₽</p>
-      <h3 class="item__name">Книжка-липучка "Домик дед Мороза"</h3>
+      <p class="item__price">{{ props.price }} ₽</p>
+      <h3 class="item__name">{{ props.name }}</h3>
       <button class="item__button">В корзину</button>
     </div>
   </div>
