@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue'
 
 const categories = ref(null)
 
-const category = ref(null)
+const category_id = ref(null)
 const name = ref(null)
 const description = ref(null)
 const image_url = ref(
@@ -12,8 +12,20 @@ const image_url = ref(
 )
 const price = ref(null)
 
+const emit = defineEmits(['product-add-successfully'])
+
 const createProduct = async () => {
   try {
+    const { data } = await axios.post(`/api/products/add`, {
+      name: name.value,
+      description: description.value,
+      image_url: image_url.value,
+      price: price.value,
+      category_id: category_id.value,
+    })
+    console.log(data, data.product)
+    emit('product-add-successfully', data.product)
+    name.value = description.value = category_id.value = price.value = null
   } catch (error) {
     console.log(error)
   }
@@ -40,7 +52,7 @@ onMounted(async () => {
     ></textarea>
     <div class="create__flex-design">
       <input v-model="price" type="text" class="create__input" placeholder="Цена продукта" />
-      <select v-model="category" class="create__select-cat">
+      <select v-model="category_id" class="create__select-cat">
         <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
       </select>
     </div>

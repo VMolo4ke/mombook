@@ -8,7 +8,7 @@ const items = ref(null)
 
 onMounted(async () => {
   try {
-    const { data } = await axios.get('http://localhost:5173/api/products')
+    const { data } = await axios.get('/api/products')
     items.value = data.products
   } catch (error) {
     console.log(error)
@@ -30,7 +30,13 @@ onMounted(async () => {
       </div>
     </header>
     <main class="main">
-      <Item v-for="item in items" :key="item.id" :price="item.price" :name="item.name" />
+      <Item
+        v-for="item in items"
+        :key="item.id"
+        :price="item.price"
+        :name="item.name"
+        :image_url="item.image_url"
+      />
     </main>
   </div>
 </template>

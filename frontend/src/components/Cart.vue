@@ -14,6 +14,7 @@
 
 <style scoped>
 .cart {
+  display: none;
   z-index: 10;
   position: fixed;
   bottom: 0;

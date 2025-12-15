@@ -7,7 +7,7 @@ class ProductRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def gel_all(self) -> List[Product]:
+    def get_all(self) -> List[Product]:
         return self.db.query(Product).options(joinedload(Product.category)).all()
     
     def get_by_id(self, product_id: int) -> Optional[Product]:
@@ -22,6 +22,14 @@ class ProductRepository:
         self.db.commit()
         self.db.refresh(db_product)
         return db_product
+    
+    def delete(self, product_id: int) -> Optional[int]:
+        db_product = self.get_by_id(product_id)
+        if db_product:
+            self.db.delete(db_product)
+            self.db.commit()
+            return product_id 
+        return None
     
     def get_multiple_by_ids(self, product_ids: List[int]) -> List[Product]:
         return (self.db.query(Product)

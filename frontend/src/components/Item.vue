@@ -2,12 +2,13 @@
 const props = defineProps({
   price: Number,
   name: String,
+  image_url: String,
 })
 </script>
 
 <template>
   <div class="item">
-    <img class="item_image" src="../assets/image/book.jpg" alt="" />
+    <img class="item_image" :src="image_url" alt="" />
     <div class="item__info">
       <p class="item__price">{{ props.price }} ₽</p>
       <h3 class="item__name">{{ props.name }}</h3>
@@ -49,5 +50,6 @@ const props = defineProps({
 }
 .item_image {
   width: 100%;
+  height: 200px;
 }
 </style>
