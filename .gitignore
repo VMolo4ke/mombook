@@ -38,7 +38,7 @@ pnpm-debug.log*
 /venv
 /env
 .venv
-.env # Секретные данные должны храниться в .env и не коммититься
+.env
 
 # Скомпилированные файлы Python
 __pycache__/
