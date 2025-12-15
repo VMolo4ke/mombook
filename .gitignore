@@ -39,6 +39,7 @@ pnpm-debug.log*
 /env
 .venv
 .env
+backend/.env
 
 # Скомпилированные файлы Python
 __pycache__/
