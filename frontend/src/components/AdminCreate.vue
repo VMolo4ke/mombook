@@ -23,7 +23,6 @@ const createProduct = async () => {
       price: price.value,
       category_id: category_id.value,
     })
-    console.log(data, data.product)
     emit('product-add-successfully', data.product)
     name.value = description.value = category_id.value = price.value = null
   } catch (error) {
@@ -33,7 +32,7 @@ const createProduct = async () => {
 
 onMounted(async () => {
   try {
-    const { data } = await axios.get('http://127.0.0.1:8000/api/categories')
+    const { data } = await axios.get('/api/categories')
     categories.value = data
   } catch (error) {
     console.log(error)

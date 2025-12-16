@@ -46,3 +46,15 @@ class ProductService:
                                 detail=f"Product with id {product_id} not found")
         self.product_repository.delete(product_id) 
         return ProductResponse.model_validate(product)
+    
+    def find_products(self, search_query: str) -> ProductListResponse:
+        products_list_orm = self.product_repository.search_by_name(search_query)
+    
+        count = len(products_list_orm)
+        
+        response = ProductListResponse(
+            products=products_list_orm, 
+            total=count                 
+        )
+    
+        return response

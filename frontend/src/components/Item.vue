@@ -38,6 +38,8 @@ const props = defineProps({
   line-height: 1.4;
   flex: 1;
   margin: 0 0 10px;
+  width: 100%;
+  overflow: hidden;
 }
 .item__button {
   background: var(--button-background);

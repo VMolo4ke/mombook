@@ -2,17 +2,56 @@
 import Item from '@/components/Item.vue'
 import Cart from '@/components/Cart.vue'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { debounce } from 'lodash'
 
 const items = ref(null)
+const inputSearch = ref('')
+const categories = ref(null)
+const activeCategoryId = ref(4) // 4 - ID для "Все товары"
+
+const fetchItems = debounce(async () => {
+  let url = ''
+
+  if (inputSearch.value.trim().length > 0) {
+    url = `/api/products/search?query=${inputSearch.value.trim()}`
+    activeCategoryId.value = 4
+  } else if (activeCategoryId.value === 4) {
+    url = '/api/products'
+  } else {
+    url = `/api/products/category/${activeCategoryId.value}`
+  }
+
+  try {
+    const { data } = await axios.get(url)
+    items.value = data.products
+  } catch (error) {
+    console.error('Error fetching items:', error)
+    items.value = []
+  }
+}, 300)
+
+watch(inputSearch, () => {
+  fetchItems()
+})
+
+const selectedCategory = (cat_id) => {
+  activeCategoryId.value = cat_id
+  inputSearch.value = ''
+  fetchItems()
+}
 
 onMounted(async () => {
   try {
-    const { data } = await axios.get('/api/products')
-    items.value = data.products
+    const { data } = await axios.get('/api/categories')
+    categories.value = data
   } catch (error) {
     console.log(error)
   }
+})
+
+onMounted(() => {
+  fetchItems()
 })
 </script>
 
@@ -23,10 +62,17 @@ onMounted(async () => {
       <img src="../assets/image/cart_icon.svg" alt="" /><span class="cart__btn-span">1</span>
     </div>
     <header class="header">
-      <input type="text" placeholder="Искать товар" class="header__input" />
+      <input type="text" placeholder="Искать товар" class="header__input" v-model="inputSearch" />
       <div class="header__category">
-        <div class="category__item">Книжки</div>
-        <div class="category__item">Игрушка</div>
+        <div
+          class="category__item"
+          v-for="cat in categories"
+          :key="cat.id"
+          @click="selectedCategory(cat.id)"
+          :class="{ 'category__item-active': cat.id === activeCategoryId }"
+        >
+          {{ cat.name }}
+        </div>
       </div>
     </header>
     <main class="main">
@@ -69,6 +115,7 @@ onMounted(async () => {
   padding: 5px 10px;
   border-radius: 10px;
   font-size: 12px;
+  transition: 0.2s;
 }
 .main {
   background: var(--color-background-mute);
@@ -100,5 +147,11 @@ onMounted(async () => {
   color: #fff;
   top: 5px;
   right: 8px;
+}
+.category__item-active {
+  background: #ffb62f;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
 }
 </style>

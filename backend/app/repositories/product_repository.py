@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select, String
 from typing import List, Optional
 from ..models.product import Product
 from ..schemas.product import ProductCreate
@@ -37,3 +38,9 @@ class ProductRepository:
                 .filter(Product.id.in_(product_ids))
                 .all()
                 )
+    
+    def search_by_name(self, query: str) -> List[Product]:
+        search_pattern = f"%{query}%"
+        stmt = select(Product).where(Product.name.cast(String).ilike(search_pattern))
+        result = self.db.execute(stmt)
+        return result.scalars().all()
