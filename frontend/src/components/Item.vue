@@ -23,6 +23,11 @@ const props = defineProps({
   background: var(--color-background-soft);
   border-radius: 15px;
   padding: 0 0 10px 0;
+  width: 100%;
+  min-width: 200px;
+  max-width: 240px;
+  margin: 0 auto;
+  cursor: pointer;
 }
 .item__info {
   width: 92%;

@@ -1,6 +1,7 @@
 <script setup>
 import Item from '@/components/Item.vue'
 import Cart from '@/components/Cart.vue'
+import ItemCard from '@/components/ItemCard.vue'
 import axios from 'axios'
 import { onMounted, ref, watch } from 'vue'
 import { debounce } from 'lodash'
@@ -9,6 +10,9 @@ const items = ref(null)
 const inputSearch = ref('')
 const categories = ref(null)
 const activeCategoryId = ref(4) // 4 - ID для "Все товары"
+
+const isOpenCard = ref(false)
+const infoOpenCard = ref(null)
 
 const fetchItems = debounce(async () => {
   let url = ''
@@ -53,11 +57,37 @@ onMounted(async () => {
 onMounted(() => {
   fetchItems()
 })
+
+watch(isOpenCard, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
+
+const openCard = (item) => {
+  isOpenCard.value = true
+  infoOpenCard.value = item
+}
+
+const handleDragEnd = () => {
+  isOpenCard.value = false
+  infoOpenCard.value = null
+}
 </script>
 
 <template>
   <div class="container">
     <Cart />
+    <ItemCard
+      v-if="isOpenCard"
+      :image_url="infoOpenCard.image_url"
+      :name="infoOpenCard.name"
+      :description="infoOpenCard.description"
+      :price="infoOpenCard.price"
+      @drag-end="handleDragEnd"
+    />
     <div class="cart__btn">
       <img src="../assets/image/cart_icon.svg" alt="" /><span class="cart__btn-span">1</span>
     </div>
@@ -82,6 +112,7 @@ onMounted(() => {
         :price="item.price"
         :name="item.name"
         :image_url="item.image_url"
+        @click="openCard(item)"
       />
     </main>
   </div>
@@ -116,13 +147,40 @@ onMounted(() => {
   border-radius: 10px;
   font-size: 12px;
   transition: 0.2s;
+  cursor: pointer;
 }
 .main {
   background: var(--color-background-mute);
-  padding: 5px 0 0 0;
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Две колонки, каждая занимает 50% доступной ширины */
   gap: 10px;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 10px 20px;
+}
+@media screen and (max-width: 1440px) {
+  .main {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media screen and (max-width: 1070px) {
+  .main {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media screen and (max-width: 865px) {
+  .main {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media screen and (max-width: 665px) {
+  .main {
+    padding: 7px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media screen and (max-width: 420px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
 }
 .cart__btn {
   display: flex;
