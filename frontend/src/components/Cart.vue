@@ -1,34 +1,127 @@
+<script setup>
+import CartItem from './CartItem.vue'
+import { useCartStore } from '@/stores/cart'
+
+const cartStore = useCartStore()
+
+const emit = defineEmits(['close'])
+
+const handleClose = () => {
+  emit('close')
+}
+</script>
+
 <template>
-  <div class="cart">
-    <div class="cart__head">
-      <div class="cart__close"></div>
-      <h2 class="cart__title">Корзина</h2>
-    </div>
-    <div class="cart__content"></div>
-    <div class="cart__pay">
-      <div class="cart__total">1000 ₽</div>
-      <div class="cart__button">Оплатить</div>
+  <div class="cart__container">
+    <div class="cart__overlay"></div>
+    <div class="cart">
+      <div class="cart__head">
+        <img class="cart__close" src="../assets/image/arrow-left.svg" @click="handleClose" />
+        <h2 class="cart__title">Корзина</h2>
+      </div>
+      <div class="cart__content" v-auto-animate>
+        <CartItem
+          v-for="item in cartStore.items"
+          :key="item.product_id"
+          :name="item.name"
+          :price="item.price"
+          :quantity="item.quantity"
+          :image_url="item.image_url"
+          :product_id="item.product_id"
+        />
+      </div>
+      <div class="cart__pay">
+        <div class="cart__total">
+          <span>Итого</span><span></span><span>{{ cartStore.total }} ₽</span>
+        </div>
+        <div class="cart__button">Оплатить</div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.cart__overlay {
+  z-index: 5;
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  background: #000;
+  opacity: 0.7;
+}
 .cart {
-  display: none;
+  right: 0;
   z-index: 10;
   position: fixed;
-  bottom: 0;
   height: 100vh;
   width: 100%;
+  max-width: 430px;
   background: #fff;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
   border: 1px solid var(--color-background-mute);
+  display: flex;
+  flex-direction: column;
+  transition: 1s;
+}
+.cart__content {
+  width: 95%;
+  margin: 0 auto 90px;
+
+  overflow: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.cart__content::-webkit-scrollbar {
+  display: none;
+}
+.cart__pay {
+  position: absolute;
+  bottom: -3px;
+  padding: 5px 0 20px 0;
+  width: 95%;
+  left: 2.5%;
+  background: var(--color-background);
+}
+.cart__total {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 10px 0;
+}
+.cart__total span:nth-child(2) {
+  border-bottom: 1px dashed #000;
+  height: 16px;
+  flex: 1;
+}
+.cart__button {
+  cursor: pointer;
+  background: var(--button-background);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.cart__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin: 0 0 10px 0;
 }
 .cart__close {
-  margin: 15px auto;
-  width: 100px;
-  height: 2px;
-  background: #959595;
+  margin: 3px 0 0 0;
+  width: 25px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.cart__close:hover {
+  scale: 1.1;
+  transform: translate3d(-1px, -1px, 0);
 }
 </style>

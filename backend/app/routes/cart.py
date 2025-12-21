@@ -1,51 +1,56 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from typing import Dict
-from ..database import get_db
+from app.database import get_db
+from app.schemas.cart import CartResponse, CartItemCreate
+from ..repositories.cart_repository import CartRepository
 from ..services.cart_service import CartService
-from ..schemas.cart import CartItemCreate, CartItemUpdate, CartResponse
-from pydantic import BaseModel
 
-router = APIRouter(
-    prefix="/api/cart",
-    tags=["cart"]
-)
 
-class AddToCartRequest(BaseModel):
-    product_id: int
-    quantity: int
-    cart: Dict[int, int] = {}
+router = APIRouter(prefix="/cart", tags=["Cart"])
 
-class UpdateCartRequest(BaseModel):
-    product_id: int
-    quantity: int
-    cart: Dict[int, int] = {}
+def get_services(db: Session = Depends(get_db)):
+    repo = CartRepository(db)
+    return CartService(repo)
 
-class RemoveFromCartRequest(BaseModel):
-    cart: Dict[int, int] = {}
+@router.get("/", response_model=CartResponse)
+def get_cart(x_session_id: str = Header(...), service: CartService = Depends(get_services)):
+    return service.get_full_cart(x_session_id)
 
-@router.post("/add", status_code=status.HTTP_200_OK)
-def add_to_cart(request: AddToCartRequest, db: Session = Depends(get_db)):
-    service = CartService(db)
-    item = CartItemCreate(product_id=request.product_id, quantity=request.quantity)
-    updated_cart = service.add_to_cart(request.cart, item)
-    return {"cart": updated_cart}
+@router.post("/items", response_model=CartResponse)
+def add_item(
+    item: CartItemCreate, 
+    x_session_id: str = Header(...), 
+    service: CartService = Depends(get_services)
+):
+    """Добавить товар (увеличивает счетчик)"""
+    service.cart_repo.add_or_update_item(x_session_id, item.product_id, item.quantity)
+    return service.get_full_cart(x_session_id)
 
-@router.get("", response_model=CartResponse, status_code=status.HTTP_200_OK)
-def get_cart(cart_data: Dict[int, int], db: Session = Depends(get_db)):
-    service = CartService(db)
-    return service.get_cart_details(cart_data)
+@router.put("/items/{product_id}", response_model=CartResponse)
+def update_item_quantity(
+    product_id: int,
+    quantity: int = Query(..., gt=0),
+    x_session_id: str = Header(...),
+    service: CartService = Depends(get_services)
+):
+    """Изменить количество на точное значение"""
+    updated = service.cart_repo.update_quantity(x_session_id, product_id, quantity)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Товар в корзине не найден")
+    return service.get_full_cart(x_session_id)
 
-@router.put("/update", status_code=status.HTTP_200_OK)
-def update_cart_item(request: UpdateCartRequest, db: Session = Depends(get_db)):
-    service = CartService(db)
-    item = CartItemUpdate(product_id=request.product_id, quantity=request.quantity)
-    updated_cart = service.update_cart_item(request.cart, item)
-    return {"cart": updated_cart}
+@router.delete("/items/{product_id}", response_model=CartResponse)
+def delete_item(
+    product_id: int,
+    x_session_id: str = Header(...),
+    service: CartService = Depends(get_services)
+):
+    """Удалить товар из корзины полностью"""
+    service.cart_repo.remove_item(x_session_id, product_id)
+    return service.get_full_cart(x_session_id)
 
-@router.delete("/remove/{product_id}", status_code=status.HTTP_200_OK)
-def remove_from_cart(product_id: int, request: RemoveFromCartRequest, db: Session = Depends(get_db)):
-    service = CartService(db)
-    item = CartItemUpdate(product_id=request.product_id, quantity=request.quantity)
-    updated_cart = service.remove_from_cart(request.cart, product_id)
-    return {"cart": updated_cart}
+@router.delete("/clear", status_code=status.HTTP_204_NO_CONTENT)
+def clear_cart(x_session_id: str = Header(...), service: CartService = Depends(get_services)):
+    """Очистить корзину полностью"""
+    service.cart_repo.clear_all(x_session_id)
+    return None

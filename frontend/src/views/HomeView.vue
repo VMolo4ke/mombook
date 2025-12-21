@@ -2,10 +2,13 @@
 import Item from '@/components/Item.vue'
 import Cart from '@/components/Cart.vue'
 import ItemCard from '@/components/ItemCard.vue'
+import Tooltip from '@/components/Tooltip.vue'
 import axios from 'axios'
 import { onMounted, ref, watch } from 'vue'
 import { debounce } from 'lodash'
+import { useCartStore } from '@/stores/cart'
 
+const cartStore = useCartStore()
 const items = ref(null)
 const inputSearch = ref('')
 const categories = ref(null)
@@ -13,6 +16,8 @@ const activeCategoryId = ref(4) // 4 - ID для "Все товары"
 
 const isOpenCard = ref(false)
 const infoOpenCard = ref(null)
+
+const isOpenCart = ref(false)
 
 const fetchItems = debounce(async () => {
   let url = ''
@@ -58,6 +63,10 @@ onMounted(() => {
   fetchItems()
 })
 
+onMounted(() => {
+  cartStore.fetchCart()
+})
+
 watch(isOpenCard, (newValue) => {
   if (newValue) {
     document.body.style.overflow = 'hidden'
@@ -65,6 +74,18 @@ watch(isOpenCard, (newValue) => {
     document.body.style.overflow = ''
   }
 })
+
+watch(isOpenCart, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
+
+const openCart = () => {
+  isOpenCart.value = true
+}
 
 const openCard = (item) => {
   isOpenCard.value = true
@@ -75,21 +96,29 @@ const handleDragEnd = () => {
   isOpenCard.value = false
   infoOpenCard.value = null
 }
+
+const handleCloseCart = () => {
+  isOpenCart.value = false
+}
 </script>
 
 <template>
   <div class="container">
-    <Cart />
+    <Cart :style="{ display: isOpenCart ? 'block' : 'none' }" @close="handleCloseCart" />
     <ItemCard
       v-if="isOpenCard"
       :image_url="infoOpenCard.image_url"
       :name="infoOpenCard.name"
       :description="infoOpenCard.description"
       :price="infoOpenCard.price"
+      :product_id="infoOpenCard.id"
       @drag-end="handleDragEnd"
     />
-    <div class="cart__btn">
-      <img src="../assets/image/cart_icon.svg" alt="" /><span class="cart__btn-span">1</span>
+    <div class="cart__btn" @click="openCart">
+      <Tooltip text="Открыть корзину"></Tooltip>
+      <img src="../assets/image/cart_icon.svg" alt="" /><span class="cart__btn-span">{{
+        cartStore.items.length
+      }}</span>
     </div>
     <header class="header">
       <input type="text" placeholder="Искать товар" class="header__input" v-model="inputSearch" />
@@ -112,6 +141,7 @@ const handleDragEnd = () => {
         :price="item.price"
         :name="item.name"
         :image_url="item.image_url"
+        :product_id="item.id"
         @click="openCard(item)"
       />
     </main>
@@ -193,6 +223,15 @@ const handleDragEnd = () => {
   bottom: 10px;
   right: 10px;
   background: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+}
+@media screen and (min-width: 500px) {
+  .cart__btn {
+    width: 85px;
+    height: 85px;
+    bottom: 30px;
+    right: 30px;
+  }
 }
 .cart__btn img {
   width: 45%;
@@ -205,6 +244,13 @@ const handleDragEnd = () => {
   color: #fff;
   top: 5px;
   right: 8px;
+}
+@media screen and (min-width: 500px) {
+  .cart__btn-span {
+    right: 15px;
+    top: 10px;
+    font-size: 14px;
+  }
 }
 .category__item-active {
   background: #ffb62f;

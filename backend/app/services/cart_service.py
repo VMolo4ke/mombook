@@ -1,63 +1,44 @@
-from sqlalchemy.orm import Session
-from typing import Dict
-from ..repositories.product_repository import ProductRepository
-from ..schemas.cart import CartItem, CartResponse, CartItemCreate, CartItemUpdate
-from fastapi import HTTPException, status
+from app.repositories.cart_repository import CartRepository
+from app.schemas.cart import CartResponse, CartItemResponse
 
 class CartService:
-    def __init__(self, db: Session):
-        self.product_repository = ProductRepository(db)
+    def __init__(self, cart_repo: CartRepository):
+        self.cart_repo = cart_repo
 
-    def add_to_cart(self, cart_data: Dict[int, int], item: CartItemCreate) -> Dict[int, int]:
-        product = self.product_repository.get_by_id(item.product_id)
-        if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-                                detail=f"Product with id {item.product_id} not found")
+    def get_full_cart(self, session_id: str) -> CartResponse:
+        # 1. Получаем список товаров из репозитория (уже синхронно)
+        items_orm = self.cart_repo.get_items_by_session(session_id)
         
-        if item.product_id in cart_data:
-            cart_data[item.product_id] += item.quantity
-        else:
-            cart_data[item.product_id] = item.quantity
-
-        return cart_data
-    
-    def update_cart_item(self, cart_data: Dict[int, int], item: CartItemCreate) -> Dict[int, int]:
-        if item.product_id not in cart_data:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-                                detail=f"Product with id {item.product_id} not found")
-        
-        cart_data[item.product_id] = item.quantity
-        return cart_data
-    
-    def remove_from_cart(self, cart_data: Dict[int, int], product_id: int) -> Dict[int, int]:
-        if product_id not in cart_data:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-                                detail=f"Product with id {product_id} not found")
-        
-        del cart_data[product_id]
-        return cart_data
-    
-    def get_cart_details(self, cart_data: Dict[int, int]) -> CartResponse:
-        if not cart_data:
-            return CartResponse(items=[], total=0.0, items_count=0)
-        products_ids = list(cart_data.keys())
-        products = self.product_repository.get_multiple_by_ids(products_ids)
-        products_dict = {product.id: product for product in products}
-
-        cart_items = []
+        res_items = []
         total_price = 0.0
-        total_items = 0
+        total_qty = 0
 
-        for product_id, quantity in cart_data.items():
-            if product_id in products_dict:
-                product = products_dict[product_id]
-                subtotal = product.price * quantity
-
-                cart_item = CartItem(product_id=product.id, name=product.name, price=product.price, 
-                                     quantity=quantity, subtotal=subtotal, image_url=product.image_url)
+        # 2. Проходим по каждой позиции и готовим данные для ответа
+        for item in items_orm:
+            # item.product доступен благодаря relationship в модели
+            if not item.product:
+                continue
                 
-                cart_items.append(cart_item)
-                total_price += subtotal
-                total_items += quantity
+            # Расчет стоимости позиции (количество * цена за 1 шт)
+            line_subtotal = item.product.price * item.quantity
+            
+            # Создаем объект по схеме CartItemResponse
+            res_items.append(CartItemResponse(
+                product_id=item.product_id,
+                name=item.product.name,
+                price=item.product.price,
+                quantity=item.quantity,
+                subtotal=line_subtotal,
+                image_url=item.product.image_url if hasattr(item.product, 'image_url') else None
+            ))
+            
+            # Накапливаем общие итоги
+            total_price += line_subtotal
+            total_qty += item.quantity
 
-        return CartResponse(items=cart_items, total=round(total_price), items_count=total_items)
+        # 3. Формируем финальный ответ по схеме CartResponse
+        return CartResponse(
+            items=res_items,
+            total=round(total_price, 2), # Округляем до копеек
+            items_count=total_qty
+        )

@@ -15,6 +15,7 @@ class Product(Base):
     createdAt = Column(DateTime, default=datetime.now(timezone.utc))
 
     category = relationship("Category", back_populates="products")
+    cart_items = relationship("CartItem", back_populates="product")
 
     def __repr__(self):
         return f"<Category(id={self.id}, name='{self.name}', price={self.price})>"
