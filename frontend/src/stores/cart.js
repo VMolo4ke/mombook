@@ -13,11 +13,7 @@ export const useCartStore = defineStore('cart', () => {
 
   const checkout = async (body) => {
     try {
-      const { data } = await axios.post(
-        'http://localhost:8000/payments/create',
-        body,
-        getCartHeaders(),
-      )
+      const { data } = await axios.post('/api/payments/create', body, getCartHeaders())
 
       const paymentUrl = data.confirmation_url
 
@@ -32,7 +28,7 @@ export const useCartStore = defineStore('cart', () => {
 
   const fetchCart = async () => {
     try {
-      const { data } = await axios.get('http://localhost:8000/cart/', getCartHeaders())
+      const { data } = await axios.get('/api/cart/', getCartHeaders())
       items.value = data.items
       total.value = data.total
     } catch (error) {
@@ -43,7 +39,7 @@ export const useCartStore = defineStore('cart', () => {
   const addToCart = async (productId, quantity = 1) => {
     try {
       const { data } = await axios.post(
-        'http://localhost:8000/cart/items',
+        '/api/cart/items',
         { product_id: productId, quantity },
         getCartHeaders(),
       )
@@ -57,7 +53,7 @@ export const useCartStore = defineStore('cart', () => {
   const updateQuantity = async (productId, quantity) => {
     try {
       const { data } = await axios.put(
-        `http://localhost:8000/cart/items/${productId}?quantity=${quantity}`,
+        `/api/cart/items/${productId}?quantity=${quantity}`,
         {},
         getCartHeaders(),
       )
@@ -70,10 +66,7 @@ export const useCartStore = defineStore('cart', () => {
 
   const removeItem = async (productId) => {
     try {
-      const { data } = await axios.delete(
-        `http://localhost:8000/cart/items/${productId}`,
-        getCartHeaders(),
-      )
+      const { data } = await axios.delete(`/api/cart/items/${productId}`, getCartHeaders())
       items.value = data.items
       total.value = data.total
     } catch (error) {

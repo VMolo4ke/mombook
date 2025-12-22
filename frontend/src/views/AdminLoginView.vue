@@ -13,7 +13,7 @@ const login = async () => {
     formData.append('username', username.value)
     formData.append('password', password.value)
 
-    const { data } = await axios.post('http://localhost:8000/login', formData)
+    const { data } = await axios.post('/api/login', formData)
 
     localStorage.setItem('admin_token', data.access_token)
 

@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 # Импортируйте только то, что НЕ импортирует этот роутер обратно
 from app.core.auth import ADMIN_PASS, ADMIN_USER, create_access_token 
 
-router = APIRouter(prefix="/login", tags=["Login"])
+router = APIRouter(prefix="/api/login", tags=["Login"])
 
 @router.post("/")
 def login(form_data: OAuth2PasswordRequestForm = Depends()):

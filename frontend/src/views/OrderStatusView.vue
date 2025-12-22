@@ -43,7 +43,7 @@ let pollInterval = null
 
 const checkStatus = async () => {
   try {
-    const { data } = await axios.get('http://localhost:8000/payments/last-status', {
+    const { data } = await axios.get('/api/payments/last-status', {
       headers: { 'x-session-id': getSessionId() },
     })
 

@@ -6,7 +6,7 @@ from ..repositories.cart_repository import CartRepository
 from ..services.cart_service import CartService
 
 
-router = APIRouter(prefix="/cart", tags=["Cart"])
+router = APIRouter(prefix="/api/cart", tags=["Cart"])
 
 def get_services(db: Session = Depends(get_db)):
     repo = CartRepository(db)

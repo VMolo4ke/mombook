@@ -15,7 +15,7 @@ class PaymentCreateResponse(BaseModel):
     address: str
 
 
-router = APIRouter(prefix="/payments", tags=["Payments"])
+router = APIRouter(prefix="/api/payments", tags=["Payments"])
 
 @router.post("/create")
 def create_payment(
