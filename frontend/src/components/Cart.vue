@@ -1,18 +1,33 @@
 <script setup>
 import CartItem from './CartItem.vue'
 import { useCartStore } from '@/stores/cart'
+import InfoClient from './InfoClient.vue'
+import { ref } from 'vue'
 
 const cartStore = useCartStore()
+const isOpenCheckout = ref(false)
 
 const emit = defineEmits(['close'])
 
 const handleClose = () => {
   emit('close')
 }
+
+const closeInfoClient = () => {
+  isOpenCheckout.value = false
+}
+
+const toCheckout = async () => {
+  isOpenCheckout.value = true
+}
 </script>
 
 <template>
   <div class="cart__container">
+    <InfoClient
+      :style="{ display: isOpenCheckout ? 'flex' : 'none' }"
+      @closeInfoClient="closeInfoClient"
+    />
     <div class="cart__overlay"></div>
     <div class="cart">
       <div class="cart__head">
@@ -34,7 +49,9 @@ const handleClose = () => {
         <div class="cart__total">
           <span>Итого</span><span></span><span>{{ cartStore.total }} ₽</span>
         </div>
-        <div class="cart__button">Оплатить</div>
+        <button class="cart__button" @click="toCheckout" :disabled="cartStore.items.length === 0">
+          Оплатить
+        </button>
       </div>
     </div>
   </div>

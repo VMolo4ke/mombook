@@ -15,6 +15,11 @@ const router = createRouter({
       name: 'admin',
       component: AdminView,
     },
+    {
+      path: '/order-status',
+      name: 'order-status',
+      component: () => import('@/views/OrderStatusView.vue'),
+    },
   ],
 })
 

@@ -22,7 +22,6 @@ def add_item(
     x_session_id: str = Header(...), 
     service: CartService = Depends(get_services)
 ):
-    """Добавить товар (увеличивает счетчик)"""
     service.cart_repo.add_or_update_item(x_session_id, item.product_id, item.quantity)
     return service.get_full_cart(x_session_id)
 
@@ -33,7 +32,6 @@ def update_item_quantity(
     x_session_id: str = Header(...),
     service: CartService = Depends(get_services)
 ):
-    """Изменить количество на точное значение"""
     updated = service.cart_repo.update_quantity(x_session_id, product_id, quantity)
     if not updated:
         raise HTTPException(status_code=404, detail="Товар в корзине не найден")
@@ -45,12 +43,14 @@ def delete_item(
     x_session_id: str = Header(...),
     service: CartService = Depends(get_services)
 ):
-    """Удалить товар из корзины полностью"""
     service.cart_repo.remove_item(x_session_id, product_id)
     return service.get_full_cart(x_session_id)
 
-@router.delete("/clear", status_code=status.HTTP_204_NO_CONTENT)
-def clear_cart(x_session_id: str = Header(...), service: CartService = Depends(get_services)):
-    """Очистить корзину полностью"""
-    service.cart_repo.clear_all(x_session_id)
+@router.delete("/clear", status_code=204)
+def clear_entire_cart(
+    x_session_id: str = Header(...),
+    db: Session = Depends(get_db)
+):
+    repo = CartRepository(db)
+    repo.clear_cart(x_session_id)
     return None

@@ -154,19 +154,30 @@ onUnmounted(() => {
   margin: 0 auto;
 }
 .card__name {
+  width: 95%;
+  word-break: break-all;
+  overflow: hidden;
   margin: 20px 0 0 10px;
   font-size: 24px;
   color: var(--color-text);
   font-weight: 600;
+  line-height: 1.1;
 }
 .card__desc {
+  word-break: break-all;
+  width: 95%;
+  overflow: scroll;
   font-size: 14px;
   color: #676767;
-  margin: 10px 0 0 10px;
+  margin: 10px 0 10px 10px;
+  scrollbar-width: none;
   flex: 1;
 }
+.card__desc::-webkit-scrollbar {
+  display: none;
+}
 .card__button {
-  margin: 0 auto 40px;
+  margin: 0 auto 30px;
   width: 90%;
   height: 40px;
   background: var(--button-background);
@@ -195,7 +206,7 @@ onUnmounted(() => {
   border: none;
   width: 90%;
   height: 40px;
-  margin: 0 auto 40px;
+  margin: 0 auto 30px;
   border-radius: 5px;
   cursor: pointer;
   transition: 0.2s;

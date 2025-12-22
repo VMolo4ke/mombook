@@ -18,5 +18,6 @@ def get_db():
         db.close()
 
 def init_db():
+    from app.models.order import Order
     Base.metadata.create_all(bind=engine)
     

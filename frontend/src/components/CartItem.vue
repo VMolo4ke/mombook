@@ -60,7 +60,7 @@ const delItemFromCart = async () => {
   margin: 0 0 25px 0;
 }
 .cart-item__image {
-  width: 100px;
+  min-width: 100px;
   height: 100px;
   border-radius: 10px;
 }

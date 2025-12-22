@@ -11,6 +11,25 @@ export const useCartStore = defineStore('cart', () => {
     headers: { 'x-session-id': getSessionId() },
   })
 
+  const checkout = async (body) => {
+    try {
+      const { data } = await axios.post(
+        'http://localhost:8000/payments/create',
+        body,
+        getCartHeaders(),
+      )
+
+      const paymentUrl = data.confirmation_url
+
+      if (paymentUrl) {
+        window.location.href = paymentUrl
+      }
+    } catch (error) {
+      console.error('Ошибка при оформлении заказа:', error.response?.data || error)
+      alert('Не удалось создать платеж.')
+    }
+  }
+
   const fetchCart = async () => {
     try {
       const { data } = await axios.get('http://localhost:8000/cart/', getCartHeaders())
@@ -62,5 +81,5 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  return { items, total, fetchCart, addToCart, updateQuantity, removeItem }
+  return { items, total, fetchCart, addToCart, updateQuantity, removeItem, checkout }
 })

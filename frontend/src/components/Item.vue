@@ -44,6 +44,7 @@ const delItemFromCart = async () => {
   background: var(--color-background-soft);
   border-radius: 15px;
   padding: 0 0 10px 0;
+  max-height: 303px;
   width: 100%;
   min-width: 200px;
   max-width: 240px;
@@ -58,6 +59,8 @@ const delItemFromCart = async () => {
   color: #ff4294;
   font-size: 16px;
   font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .item__name {
   font-size: 15px;

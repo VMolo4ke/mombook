@@ -1,9 +1,13 @@
 from pydantic_settings import BaseSettings
 from pydantic import computed_field
+from yookassa import Configuration
 
 class Settings(BaseSettings):
     app_name: str = "MomBook"
     debug: bool = True
+
+    yookassa_shop_id: str
+    yookassa_secret_key: str
 
     db_user: str
     db_password: str
@@ -20,6 +24,8 @@ class Settings(BaseSettings):
     static_dir: str = "static"
     image_dit: str = "static/image"
 
+    frontend_url: str = "http://localhost:5173" 
+
     @computed_field
     @property
     def database_url(self) -> str:
@@ -29,3 +35,6 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
+
+Configuration.account_id = settings.yookassa_shop_id
+Configuration.secret_key = settings.yookassa_secret_key

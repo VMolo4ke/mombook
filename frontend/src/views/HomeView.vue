@@ -3,6 +3,7 @@ import Item from '@/components/Item.vue'
 import Cart from '@/components/Cart.vue'
 import ItemCard from '@/components/ItemCard.vue'
 import Tooltip from '@/components/Tooltip.vue'
+import ContactInfo from '@/components/ContactInfo.vue'
 import axios from 'axios'
 import { onMounted, ref, watch } from 'vue'
 import { debounce } from 'lodash'
@@ -145,10 +146,16 @@ const handleCloseCart = () => {
         @click="openCard(item)"
       />
     </main>
+    <ContactInfo />
   </div>
 </template>
 
 <style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 .header {
   width: 95%;
   padding: 10px 0 0 0;
@@ -185,6 +192,7 @@ const handleCloseCart = () => {
   gap: 10px;
   grid-template-columns: repeat(6, 1fr);
   padding: 10px 20px;
+  flex: 1;
 }
 @media screen and (max-width: 1440px) {
   .main {

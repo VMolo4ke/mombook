@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .config import settings
 from .database import init_db
-from .routes import products_router, categories_router, cart_router
+from .routes import products_router, categories_router, cart_router, payment
 
 app = FastAPI(
     title=settings.app_name,
@@ -17,7 +17,7 @@ app.add_middleware(
     allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*", "x-session-id"],
 )
 
 app.mount('/static', StaticFiles(directory=settings.static_dir), name='static')
@@ -25,6 +25,7 @@ app.mount('/static', StaticFiles(directory=settings.static_dir), name='static')
 app.include_router(products_router)
 app.include_router(categories_router)
 app.include_router(cart_router)
+app.include_router(payment.router) 
 
 @app.on_event('startup')
 def on_startup():
