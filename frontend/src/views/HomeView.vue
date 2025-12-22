@@ -13,7 +13,7 @@ const cartStore = useCartStore()
 const items = ref(null)
 const inputSearch = ref('')
 const categories = ref(null)
-const activeCategoryId = ref(4) // 4 - ID для "Все товары"
+const activeCategoryId = ref(1) // 1 - ID для "Все товары"
 
 const isOpenCard = ref(false)
 const infoOpenCard = ref(null)
@@ -25,8 +25,8 @@ const fetchItems = debounce(async () => {
 
   if (inputSearch.value.trim().length > 0) {
     url = `/api/products/search?query=${inputSearch.value.trim()}`
-    activeCategoryId.value = 4
-  } else if (activeCategoryId.value === 4) {
+    activeCategoryId.value = 1
+  } else if (activeCategoryId.value === 1) {
     url = '/api/products'
   } else {
     url = `/api/products/category/${activeCategoryId.value}`
@@ -135,7 +135,7 @@ const handleCloseCart = () => {
         </div>
       </div>
     </header>
-    <main class="main">
+    <main class="main" v-auto-animate>
       <Item
         v-for="item in items"
         :key="item.id"
@@ -232,6 +232,7 @@ const handleCloseCart = () => {
   right: 10px;
   background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
+  z-index: 1000;
 }
 @media screen and (min-width: 500px) {
   .cart__btn {

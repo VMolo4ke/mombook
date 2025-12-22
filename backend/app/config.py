@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     yookassa_shop_id: str
     yookassa_secret_key: str
 
+    admin_username: str
+    admin_password: str
+    jwt_secret: str
+
     db_user: str
     db_password: str
     db_name: str

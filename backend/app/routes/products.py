@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, status, Query, HTTPException
 from sqlalchemy.orm import Session
+
+from app.core.auth import verify_admin
 from ..database import get_db
 from ..services.product_service import ProductService
 from ..schemas.product import ProductResponse, ProductListResponse, ProductCreate
@@ -53,7 +55,7 @@ def get_products_by_category(category_id: int, db: Session = Depends(get_db)):
     return service.get_product_by_category(category_id)
 
 @router.post("/add", status_code=status.HTTP_201_CREATED)
-def create_product(request: AddToProductRequest, db: Session = Depends(get_db)):
+def create_product(request: AddToProductRequest, db: Session = Depends(get_db), admin_user: str = Depends(verify_admin)):
     service = ProductService(db)
     item = ProductCreate(name=request.name, description=request.description, image_url=request.image_url, 
                          price=request.price, category_id=request.category_id)
@@ -61,7 +63,7 @@ def create_product(request: AddToProductRequest, db: Session = Depends(get_db)):
     return {"product": new_product}
 
 @router.delete("/delete/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_product(product_id: int, db: Session = Depends(get_db)):
+def remove_product(product_id: int, db: Session = Depends(get_db), admin_user: str = Depends(verify_admin)):
     service = ProductService(db)
     del_product = service.remove_product_by_id(product_id)
 

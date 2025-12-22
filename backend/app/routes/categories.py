@@ -5,6 +5,7 @@ from ..database import get_db
 from ..services.category_service import CategoryService
 from ..schemas.category import CategoryResponse, CategoryCreate
 from pydantic import BaseModel
+from app.core.auth import verify_admin
 
 router = APIRouter(
     prefix="/api/categories",
@@ -27,7 +28,7 @@ def get_category(category_id: int, db: Session = Depends(get_db)):
     return service.get_category_by_id(category_id)
 
 @router.post("/add", status_code=status.HTTP_201_CREATED)
-def create_category(request: AddToCategoryRequest, db: Session = Depends(get_db)):
+def create_category(request: AddToCategoryRequest, db: Session = Depends(get_db), admin_user: str = Depends(verify_admin)):
     service = CategoryService(db)
     item = CategoryCreate(name=request.name, slug=request.slug)
     new_category = service.create_category(item)

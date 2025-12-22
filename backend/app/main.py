@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .config import settings
 from .database import init_db
-from .routes import products_router, categories_router, cart_router, payment
+from .routes import products_router, categories_router, cart_router, payment, login
 
 app = FastAPI(
     title=settings.app_name,
@@ -26,6 +26,7 @@ app.include_router(products_router)
 app.include_router(categories_router)
 app.include_router(cart_router)
 app.include_router(payment.router) 
+app.include_router(login.router)
 
 @app.on_event('startup')
 def on_startup():

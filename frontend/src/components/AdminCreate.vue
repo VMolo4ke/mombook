@@ -7,9 +7,7 @@ const categories = ref(null)
 const category_id = ref(null)
 const name = ref(null)
 const description = ref(null)
-const image_url = ref(
-  'https://sun9-56.userapi.com/s/v1/ig2/qjKu8xIISPVMc41J9l3pjpW3Zc9g7J0yAHcX-3W_9c1Ad7iDNkiUEqiqgRLM8btBJ_TkUsYAQ2kLTFGtl3F-AQI9.jpg?quality=95&as=32x43,48x64,72x96,108x144,160x213,240x320,360x480,480x640,540x720,640x853,720x960,960x1280&from=bu&cs=960x0',
-)
+const image_url = ref(null)
 const price = ref(null)
 
 const emit = defineEmits(['product-add-successfully'])
@@ -43,6 +41,7 @@ onMounted(async () => {
 <template>
   <div class="create">
     <input v-model="name" type="text" class="create__input" placeholder="Название продукта" />
+    <input v-model="image_url" type="text" class="create__input" placeholder="Фотография - URL" />
     <textarea
       v-model="description"
       type="text"

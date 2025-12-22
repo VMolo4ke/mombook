@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="footer__title">Контакты</div>
     <div class="footer__info">
-      <a href="mailto:kev1980@mail.ru" class="footer__item">Почта: kev1980@mail.ru</a>
+      <a href="mailto:mombook.sup@gmail.com" class="footer__item">Почта: mombook.sup@gmail.com</a>
       <a href="tel:+79220545826" class="footer__item">Номер: +79220545826</a>
       <a href="https://t.me/Evgeniya_myagrushki" target="_blank" class="footer__item"
         >Телеграм: @Evgeniya_myagrushki</a
