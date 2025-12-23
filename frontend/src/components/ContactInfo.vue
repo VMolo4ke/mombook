@@ -7,6 +7,7 @@
       <a href="https://t.me/Evgeniya_myagrushki" target="_blank" class="footer__item"
         >Телеграм: @Evgeniya_myagrushki</a
       >
+      <a class="footer__item">ИНН: 722406951147</a>
     </div>
   </footer>
 </template>
