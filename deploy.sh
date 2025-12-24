@@ -152,7 +152,7 @@ APP_NAME=$APP_NAME
 DEBUG=False
 
 # Database
-DATABASE_URL=sqlite:///./shop.db
+DATABASE_URL=postgresql://mom_user:kev1980@localhost:5432/mombook_db
 
 # CORS Origins
 CORS_ORIGINS=https://$DOMAIN,https://www.$DOMAIN
@@ -505,7 +505,7 @@ update_backend_dockerfile() {
     print_step "Обновление backend Dockerfile"
 
     cat > backend/Dockerfile << EOF
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -539,9 +539,6 @@ update_frontend_dockerfile() {
 FROM node:20-alpine as build
 
 WORKDIR /app
-
-ARG VITE_API_BASE_URL
-ENV VITE_API_BASE_URL=\${VITE_API_BASE_URL}
 
 COPY package*.json ./
 RUN npm ci
@@ -611,24 +608,6 @@ build_and_run_docker() {
     else
         print_warning "Некоторые контейнеры могут быть не запущены"
         print_info "Проверьте статус: docker compose ps"
-    fi
-}
-
-# Заполнение базы данных тестовыми данными
-seed_database() {
-    print_step "Заполнение базы данных тестовыми данными"
-
-    print_info "Проверка наличия данных в базе..."
-
-    sleep 5
-
-    print_info "Запуск скрипта seed_data.py..."
-    docker compose exec -T backend python backend/seed_data.py
-
-    if [ $? -eq 0 ]; then
-        print_success "База данных успешно заполнена"
-    else
-        print_warning "Возможно, база уже содержит данные"
     fi
 }
 
