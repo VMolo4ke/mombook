@@ -290,7 +290,7 @@ obtain_ssl_certificates() {
         --name nginx_certbot_temp \
         -p 80:80 \
         -v "$(pwd)/certbot/www:/usr/share/nginx/html" \
-        nginx:alpine > /dev/null 2>&1
+        nginx:alpine 
 
     sleep 3
 
