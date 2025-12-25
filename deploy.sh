@@ -296,11 +296,10 @@ obtain_ssl_certificates() {
     print_info "Запрос сертификатов для доменов: $DOMAIN, www.$DOMAIN"
 
     set +e
-    certbot certonly --webroot \
-        docker compose run --rm --entrypoint "\
+    docker compose run --rm --entrypoint "\
         certbot certonly --webroot \
         -w /var/www/certbot \
-        --email $EMAIL \
+        --email gavr.22898@gmail.com \
         --agree-tos \
         --no-eff-email \
         -d sticky-book.ru \
