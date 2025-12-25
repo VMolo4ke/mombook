@@ -295,17 +295,16 @@ obtain_ssl_certificates() {
 
     print_info "Запрос сертификатов для доменов: $DOMAIN, www.$DOMAIN"
 
-    print_info "Запрос сертификатов для доменов: $DOMAIN, www.$DOMAIN"
-
     set +e
     certbot certonly --webroot \
-        --webroot-path="$(pwd)/certbot/www" \
-        --email "$EMAIL" \
+        docker compose run --rm --entrypoint "\
+        certbot certonly --webroot \
+        -w /var/www/certbot \
+        --email $EMAIL \
         --agree-tos \
         --no-eff-email \
-        --force-renewal \
-        -d "$DOMAIN" \
-        -d "www.$DOMAIN"
+        -d sticky-book.ru \
+        -d www.sticky-book.ru" certbot
     CERTBOT_EXIT_CODE=$?
     set -e
 
