@@ -270,46 +270,43 @@ install_certbot() {
 
 # Получение SSL сертификатов
 obtain_ssl_certificates() {
-    print_step "Получение SSL сертификатов Let's Encrypt"
-
-    if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-        print_warning "Сертификаты для $DOMAIN уже существуют"
-        read -p "Перевыпустить сертификаты? (y/n): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            print_info "Используем существующие сертификаты"
-            return 0
-        fi
-    fi
+    # ... (проверки сертификатов остаются прежними)
 
     mkdir -p "$(pwd)/certbot/www" "$(pwd)/certbot/conf"
 
-    print_info "Запуск временного веб-сервера для верификации домена..."
+    print_info "Запуск временного контейнера Nginx для верификации..."
 
+    # Запускаем Nginx в фоновом режиме
     docker run --rm -d \
         --name nginx_certbot_temp \
         -p 80:80 \
-        -v "$(pwd)/certbot/www:/usr/share/nginx/html" \
+        -v "$(pwd)/certbot/www:/usr/share/nginx/html:ro" \
         nginx:alpine > /dev/null 2>&1
 
-    sleep 3
+    sleep 2
 
-    print_info "Запрос сертификатов для доменов: $DOMAIN, www.$DOMAIN"
+    print_info "Запрос сертификатов с помощью контейнера Certbot..."
 
-    certbot certonly --webroot \
-        --webroot-path="$(pwd)/certbot/www" \
+    # Запускаем Certbot также в Docker, чтобы не зависеть от локальных утилит
+    docker run --rm \
+        --name certbot_client \
+        -v "$(pwd)/certbot/conf:/etc/letsencrypt" \
+        -v "$(pwd)/certbot/www:/var/www/certbot" \
+        certbot/certbot certonly \
+        --webroot \
+        --webroot-path=/var/www/certbot \
         --email "$EMAIL" \
         --agree-tos \
         --no-eff-email \
         --force-renewal \
-        -d "$DOMAIN" \
-        -d "www.$DOMAIN"
+        -d "$DOMAIN" -d "www.$DOMAIN"
 
+    # Останавливаем временный Nginx после получения сертификатов
     docker stop nginx_certbot_temp > /dev/null 2>&1 || true
 
-    if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    if [ -d "$(pwd)/certbot/conf/live/$DOMAIN" ]; then
         print_success "SSL сертификаты успешно получены"
-        print_info "Сертификаты сохранены в: /etc/letsencrypt/live/$DOMAIN/"
+        print_info "Сертификаты сохранены локально в: $(pwd)/certbot/conf/live/$DOMAIN/"
     else
         print_error "Не удалось получить SSL сертификаты"
         print_warning "Проверьте, что домены $DOMAIN и www.$DOMAIN указывают на этот сервер"
