@@ -286,20 +286,19 @@ obtain_ssl_certificates() {
 
     print_info "Запуск временного веб-сервера для верификации домена..."
 
-    if ! docker run --rm -d \
+    docker run --rm -d \
         --name nginx_certbot_temp \
         -p 80:80 \
         -v "$(pwd)/certbot/www:/usr/share/nginx/html" \
-        nginx:alpine; then
-        print_error "Не удалось запустить временный nginx контейнер"
-        print_warning "Проверьте, свободен ли порт 80"
-        ss -ltnp | grep :80 || true
-        exit 1
-    fi
-    sleep 5
+        nginx:alpine > /dev/null 2>&1
+
+    sleep 3
 
     print_info "Запрос сертификатов для доменов: $DOMAIN, www.$DOMAIN"
 
+    print_info "Запрос сертификатов для доменов: $DOMAIN, www.$DOMAIN"
+
+    set +e
     certbot certonly --webroot \
         --webroot-path="$(pwd)/certbot/www" \
         --email "$EMAIL" \
@@ -308,6 +307,18 @@ obtain_ssl_certificates() {
         --force-renewal \
         -d "$DOMAIN" \
         -d "www.$DOMAIN"
+    CERTBOT_EXIT_CODE=$?
+    set -e
+
+    if [ $CERTBOT_EXIT_CODE -ne 0 ]; then
+        print_error "Certbot завершился с ошибкой (код $CERTBOT_EXIT_CODE)"
+        print_warning "Чаще всего причины:"
+        print_warning "• домен не указывает на этот сервер"
+        print_warning "• порт 80 недоступен извне"
+        print_warning "• firewall / cloud firewall"
+        print_warning "• DNS ещё не применился"
+        exit 1
+    fi
 
     docker stop nginx_certbot_temp > /dev/null 2>&1 || true
 
