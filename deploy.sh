@@ -270,43 +270,50 @@ install_certbot() {
 
 # Получение SSL сертификатов
 obtain_ssl_certificates() {
-    # ... (проверки сертификатов остаются прежними)
+    print_step "Получение SSL сертификатов Let's Encrypt"
 
-    mkdir -p "$(pwd)/certbot/www" "$(pwd)/certbot/conf"
+    if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+        print_warning "Сертификаты для $DOMAIN уже существуют"
+        read -p "Перевыпустить сертификаты? (y/n): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_info "Используем существующие сертификаты"
+            return 0
+        fi
+    fi
 
-    print_info "Запуск временного контейнера Nginx для верификации..."
+    mkdir -p certbot/www
 
-    # Запускаем Nginx в фоновом режиме
-    docker run --rm -d \
+    print_info "Запуск временного веб-сервера для верификации домена..."
+
+    if ! docker run --rm -d \
         --name nginx_certbot_temp \
         -p 80:80 \
-        -v "$(pwd)/certbot/www:/usr/share/nginx/html:ro" \
-        nginx:alpine > /dev/null 2>&1
+        -v "$(pwd)/certbot/www:/usr/share/nginx/html" \
+        nginx:alpine; then
+        print_error "Не удалось запустить временный nginx контейнер"
+        print_warning "Проверьте, свободен ли порт 80"
+        ss -ltnp | grep :80 || true
+        exit 1
+    fi
+    sleep 5
 
-    sleep 2
+    print_info "Запрос сертификатов для доменов: $DOMAIN, www.$DOMAIN"
 
-    print_info "Запрос сертификатов с помощью контейнера Certbot..."
-
-    # Запускаем Certbot также в Docker, чтобы не зависеть от локальных утилит
-    docker run --rm \
-        --name certbot_client \
-        -v "$(pwd)/certbot/conf:/etc/letsencrypt" \
-        -v "$(pwd)/certbot/www:/var/www/certbot" \
-        certbot/certbot certonly \
-        --webroot \
-        --webroot-path=/var/www/certbot \
+    certbot certonly --webroot \
+        --webroot-path="$(pwd)/certbot/www" \
         --email "$EMAIL" \
         --agree-tos \
         --no-eff-email \
         --force-renewal \
-        -d "$DOMAIN" -d "www.$DOMAIN"
+        -d "$DOMAIN" \
+        -d "www.$DOMAIN"
 
-    # Останавливаем временный Nginx после получения сертификатов
     docker stop nginx_certbot_temp > /dev/null 2>&1 || true
 
-    if [ -d "$(pwd)/certbot/conf/live/$DOMAIN" ]; then
+    if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
         print_success "SSL сертификаты успешно получены"
-        print_info "Сертификаты сохранены локально в: $(pwd)/certbot/conf/live/$DOMAIN/"
+        print_info "Сертификаты сохранены в: /etc/letsencrypt/live/$DOMAIN/"
     else
         print_error "Не удалось получить SSL сертификаты"
         print_warning "Проверьте, что домены $DOMAIN и www.$DOMAIN указывают на этот сервер"
@@ -698,7 +705,6 @@ main() {
     update_frontend_dockerfile
     create_directories
     build_and_run_docker
-    seed_database
     check_health
 
     show_deployment_info
