@@ -282,7 +282,7 @@ obtain_ssl_certificates() {
         fi
     fi
 
-    mkdir -p certbot/www
+    mkdir -p "$(pwd)/certbot/www" "$(pwd)/certbot/conf"
 
     print_info "Запуск временного веб-сервера для верификации домена..."
 
