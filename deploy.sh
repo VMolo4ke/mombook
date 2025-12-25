@@ -288,7 +288,7 @@ obtain_ssl_certificates() {
 
     docker run --rm -d \
         --name nginx_certbot_temp \
-        -p 8080:80 \
+        -p 80:80 \
         -v "$(pwd)/certbot/www:/usr/share/nginx/html" \
         nginx:alpine > /dev/null 2>&1
 
