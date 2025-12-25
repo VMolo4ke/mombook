@@ -1,11 +1,27 @@
 version: "3.8"
 
 services:
+  # 1. База данных PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: fashop_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mom_user
+      POSTGRES_PASSWORD: kev1980
+      POSTGRES_DB: mombook_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fashop_network
+
+  # 2. Бэкенд (FastAPI)
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
     container_name: fashop_backend
+    # Исправлен путь к приложению. Убедитесь, что внутри контейнера файл лежит по этому пути
     command: uvicorn app.app.main:app --host 0.0.0.0 --port 8000
     volumes:
       - ./backend:/app
@@ -13,14 +29,18 @@ services:
     environment:
       - APP_NAME=${APP_NAME:-FastAPI Shop}
       - DEBUG=${DEBUG:-False}
-      - DATABASE_URL=postgresql://mom_user:kev1980@localhost:5432/mombook_db
+      # ВАЖНО: заменено localhost на db (имя сервиса базы в сети docker)
+      - DATABASE_URL=postgresql://mom_user:kev1980@db:5432/mombook_db
       - CORS_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}
+    depends_on:
+      - db
     expose:
       - "8000"
     restart: unless-stopped
     networks:
       - fashop_network
 
+  # 3. Фронтенд (Vue/Vite)
   frontend:
     build:
       context: ./frontend
@@ -36,8 +56,9 @@ services:
     networks:
       - fashop_network
 
+  # 4. Основной Nginx (SSL-терминатор)
   nginx:
-    image: nginx:alpine
+    image: nginx:1.29-alpine
     container_name: fashop_nginx
     volumes:
       - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
@@ -49,7 +70,8 @@ services:
       - "443:443"
     environment:
       - DOMAIN=${DOMAIN}
-    command: /bin/sh -c "envsubst '$${DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    # Используем envsubst для подстановки домена в конфиг
+    command: /bin/sh -c "envsubst '$$DOMAIN' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     depends_on:
       - backend
       - frontend
@@ -57,6 +79,7 @@ services:
     networks:
       - fashop_network
 
+  # 5. Certbot для автопродления сертификатов
   certbot:
     image: certbot/certbot
     container_name: fashop_certbot
@@ -74,3 +97,5 @@ networks:
 
 volumes:
   backend_static:
+  postgres_data: # Добавлен объем для сохранения данных базы при перезагрузке
+
