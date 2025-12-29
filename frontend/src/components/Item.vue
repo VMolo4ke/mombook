@@ -63,6 +63,7 @@ const delItemFromCart = async () => {
   white-space: nowrap;
 }
 .item__name {
+  height: 22px;
   font-size: 15px;
   line-height: 1.4;
   flex: 1;

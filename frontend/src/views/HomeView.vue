@@ -165,6 +165,7 @@ const handleCloseCart = () => {
   width: 100%;
   height: 30px;
   background: var(--color-background-mute);
+  color: var(--color-text);
   padding: 0 0 0 10px;
   border-radius: 5px;
   border: none;

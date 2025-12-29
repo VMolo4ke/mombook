@@ -72,7 +72,7 @@ const handleCheckout = async () => {
   flex-direction: column;
   width: 400px;
   padding: 20px;
-  background: #fff;
+  background: var(--color-background);
   border-radius: 10px;
 }
 .client_form input {

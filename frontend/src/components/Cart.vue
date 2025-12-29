@@ -124,6 +124,16 @@ const toCheckout = async () => {
   justify-content: center;
   align-items: center;
 }
+@media screen and (max-width: 500px) {
+  .cart__button {
+    margin: 0 auto 30px;
+  }
+}
+@media screen and (max-width: 500px) {
+  .client {
+    background: var(--color-background-);
+  }
+}
 .cart__head {
   display: flex;
   align-items: center;

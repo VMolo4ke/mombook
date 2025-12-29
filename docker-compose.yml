@@ -30,7 +30,7 @@ services:
       - APP_NAME=${APP_NAME:-FastAPI Shop}
       - DEBUG=${DEBUG:-False}
       # ВАЖНО: заменено localhost на db (имя сервиса базы в сети docker)
-      - DATABASE_URL=postgresql://mom_user:kev1980@db:5432/mombook_db
+      - DATABASE_URL=postgresql://mom_user:kev1980@fashop_db:5432/mombook_db
       - CORS_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}
     depends_on:
       - db

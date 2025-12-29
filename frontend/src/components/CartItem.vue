@@ -101,9 +101,24 @@ const delItemFromCart = async () => {
   color: var(--button-background);
   font-weight: 800;
 }
+@media screen and (max-width: 500px) {
+  .cart-item__operation {
+    margin: 0;
+  }
+}
 .minus {
   font-size: 22px;
   margin: 0 0 6px 0;
+}
+@media screen and (max-width: 500px) {
+  .minus {
+    margin: 0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .cart-item__count {
+    background: var(--color-background-mute);
+  }
 }
 .cart-item__delete {
   position: absolute;
